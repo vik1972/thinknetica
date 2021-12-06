@@ -24,8 +24,8 @@ class Station
   end
 
   #Возвращает массиввсех поездов на станции в текущий момент времени, по типу
-  def show_trains_type
-    passenger_trains = @trains.select { |train| train.type_train == "пассажирский"}
-    freight_trains = @trains.select { |train| train.type_train == "грузовой"}
+  def trains_by(type)
+    passenger_trains = @trains.select { |train| train.type_train == type}
+    freight_trains = @trains.select { |train| train.type_train == type}
   end
 end
