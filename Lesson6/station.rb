@@ -10,6 +10,13 @@ class Station
 
   @@all_stations =[]
   
+   def valid?
+    if @name.nil?
+      puts "Название станция не может быть пустой строкой"
+      raise RuntimeError
+    end
+    true
+  end
 
   def self.all
     @@all_stations
@@ -17,6 +24,7 @@ class Station
 
   def initialize(name)
     @name = name
+    valid?
     @trains = []
     register_instance
     @@all_stations << self

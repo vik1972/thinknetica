@@ -3,6 +3,8 @@ require_relative "maker"
 require_relative "instances_counter"
 
 class Train
+  NUMBER_FORMAT =/^(([\d]|[a-z]|[а-я]){3}\-?([\d]|[a-z]|[а-я]){2})$/i
+
   
   include Company
   include InstanceCounter
@@ -11,6 +13,19 @@ class Train
   attr_accessor :route, :current_location, :type,  :wagons
   @@all_trains = []
   @@instances = 0
+
+  def valid?
+    if number !~ NUMBER_FORMAT
+      puts "Формат номера задан неверно!"
+      puts "Допустимый формат: XXX-XX или XXXXX, где Х любая буква или цифра"
+      raise RuntimeError
+    end
+    if number.length < 5
+      puts "Номер поезда должен содержать не менее 5 символов" 
+      raise RuntimeError
+    end
+    true
+  end
 
   def self.instances
    @@instances
@@ -22,6 +37,7 @@ class Train
 
   def initialize(number)
     @number = number.to_s
+    valid?
     @wagons = []
     @speed = 0
     @current_location = 0

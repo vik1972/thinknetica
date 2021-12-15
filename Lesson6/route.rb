@@ -5,8 +5,17 @@ class Route
   include InstanceCounter
   attr_accessor :stations
 
+  def valid?
+    if @stations.first == @stations.last
+      puts "Начальная и конечная станция должны быть различные"
+      raise RuntimeError
+    end
+    true
+  end
+
   def initialize(start_station, finish_station)
     @stations = [start_station, finish_station]
+    valid?
     register_instance
   end
 
