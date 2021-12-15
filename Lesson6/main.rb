@@ -59,6 +59,28 @@ class Controller
     puts "All stations #{stations.size}"
   end
 =end
+  def validate!(number)
+    if number !~ NUMBER_FORMAT
+      puts "Формат номера задан неверно! "
+      puts "Допустимый формат: три буквы или цифры в любом порядке," +
+            "необязательный дефис (может быть, а может нет)" +
+              "и еще 2 буквы или цифры после дефиса"
+      raise RuntimeError
+    end
+    if number.length < 5
+      puts "Номер поезда должен содержать не менее 5 символов" 
+      raise RuntimeError
+    end
+  end
+
+  def valid?(number)
+    validate!(number)
+    true # возвращаем true, если метод validate! не выбросил исключение
+    rescue 
+      false # возвращаем false, если было исключение
+  end
+
+
   def print_stations 
     if stations.empty?
       puts "Станций нет"
@@ -81,7 +103,6 @@ class Controller
   def new_station
     puts "Введите название станции"
     name = gets.chomp
-    #puts "Имя #{name} проверка - #{stations.include?(name)}"
     stations.each do |station|
       if station.name == name
         puts "Станция с таким названием уже есть"
@@ -91,52 +112,37 @@ class Controller
     stations.push(Station.new(name))
   end
 
-  # def validate!(number)
-  #   puts "def valid!(number) #{number}"
-  #   raise "Формат номера задан неверно! " if number !~ NUMBER_FORMAT
-  #   raise "Номер поезда должен содержать не менее 5 символов" if number.length < 5
-  # end
-
-  # def valid?(number)
-  #   puts "def valid?(number) #{number}"
-  #   validate!(number)
-  #   true # возвращаем true, если метод validate! не выбросил исключение
-  # rescue
-  #   false # возвращаем false, если было исключение
-  # end
-
   def new_train
     puts "Введите номер поезда" 
+    attempt = 0
     name = gets.chomp.to_s
-    if name.length < 5
-      puts "Номер поезда должен содержать не менее 5 символов" 
-      raise RuntimeError 
-    end
-    if name !~ NUMBER_FORMAT
-      puts "Формат номера задан неверно! " 
-      raise RuntimeError
-    end
-    puts "Укажите необходимый тип поезда ('грузовой' или 'пассажирский')"
-    type = gets.chomp
-    puts "Укажите количество вагонов"
-    count = gets.chomp.to_i
-    if type == "грузовой"
-      train = CargoTrain.new(name) 
-      for i in (1.. count)
-        wagon = CargoWagon.new(i)
-        train.push_wagon(wagon)
-      end
-      trains.push(train)
-    elsif type == "пассажирский"
-      train = PassengerTrain.new(name) 
-      for i in (1.. count)
-        wagon = PassengerWagon.new(i)
-        train.push_wagon(wagon)
-      end
-      trains.push(train)
-      puts "Неверный тип вагона"
+    if not valid?(name)
+      puts "Поезд не был создан! Попробуйте еще раз."
     else
-      puts "Неверный тип поезда"
+      puts "Укажите необходимый тип поезда ('грузовой' или 'пассажирский')"
+      type = gets.chomp
+      puts "Укажите количество вагонов"
+      count = gets.chomp.to_i
+      if type == "грузовой"
+        train = CargoTrain.new(name) 
+        for i in (1.. count)
+          wagon = CargoWagon.new(i)
+          train.push_wagon(wagon)
+        end
+        puts "Поезд №#{name} создан."
+        trains.push(train)
+      elsif type == "пассажирский"
+        train = PassengerTrain.new(name) 
+        for i in (1.. count)
+          wagon = PassengerWagon.new(i)
+          train.push_wagon(wagon)
+        end
+        puts "Поезд №#{name} создан."
+        trains.push(train)
+      else
+        puts "Неверный тип вагона"
+        puts "Поезд не создан."
+      end
     end
   end
 
@@ -400,20 +406,11 @@ def del_wagon
           attempt +=1 
           puts "Попытайтесь еще раз."
           retry if attempt < 2
-        end       
+        end   
+
       when "2"
-        #new_train
-        attempt = 0
-        begin
-          new_train
-        rescue RuntimeError
-          attempt +=1 
-          puts "Попытайтесь еще раз."
-          puts "Допустимый формат: три буквы или цифры в любом порядке," +
-                "необязательный дефис (может быть, а может нет)" +
-                "и еще 2 буквы или цифры после дефиса"
-          retry if attempt < 3
-        end
+        new_train
+        
       when "3"
         route_controller
       when "4"
