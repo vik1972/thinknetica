@@ -407,7 +407,6 @@ def del_wagon
           puts "Попытайтесь еще раз."
           retry if attempt < 2
         end   
-
       when "2"
         new_train
         

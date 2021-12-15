@@ -5,7 +5,7 @@ require_relative "instances_counter"
 class Train
   
   include Company
-  #include InstanceCounter
+  include InstanceCounter
 
   attr_reader :speed, :number
   attr_accessor :route, :current_location, :type,  :wagons
