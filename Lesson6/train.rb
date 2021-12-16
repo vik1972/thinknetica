@@ -14,7 +14,7 @@ class Train
   @@all_trains = []
   @@instances = 0
 
-  def valid?
+  def validate!
     if number !~ NUMBER_FORMAT
       puts "Формат номера задан неверно!"
       puts "Допустимый формат: XXX-XX или XXXXX, где Х любая буква или цифра"
@@ -24,7 +24,6 @@ class Train
       puts "Номер поезда должен содержать не менее 5 символов" 
       raise RuntimeError
     end
-    true
   end
 
   def self.instances
@@ -37,7 +36,7 @@ class Train
 
   def initialize(number)
     @number = number.to_s
-    valid?
+    validate!
     @wagons = []
     @speed = 0
     @current_location = 0

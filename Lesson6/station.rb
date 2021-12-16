@@ -3,19 +3,24 @@ require_relative "instances_counter"
 
 class Station
 
+
   include InstanceCounter
 
   attr_accessor :trains
   attr_reader :name
-
   @@all_stations =[]
-  
-   def valid?
-    if @name.nil?
-      puts "Название станция не может быть пустой строкой"
+
+  def validate!
+    if @name.size == 0 
+      puts "Название станция не может быть пустой строкой."
       raise RuntimeError
     end
-    true
+    @@all_stations.each do |station|
+      if station.name == @name
+        puts "Станция с таким названием уже есть"
+        raise RuntimeError
+      end
+    end
   end
 
   def self.all
@@ -24,7 +29,7 @@ class Station
 
   def initialize(name)
     @name = name
-    valid?
+    validate!
     @trains = []
     register_instance
     @@all_stations << self
@@ -47,3 +52,4 @@ class Station
     trains.select { |train| train.type == type }
   end
 end
+

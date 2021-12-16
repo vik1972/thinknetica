@@ -82,38 +82,36 @@ class Controller
     attempt = 0
     begin
       puts "Введите название станции"
-      name = gets.chomp
-      stations.each do |station|
-        if station.name == name
-          puts "Станция с таким названием уже есть"
-          raise RuntimeError
-        end
-      end
-    rescue
+      name = gets.chomp.strip
+      stations << Station.new(name)
+
+    rescue RuntimeError
       attempt += 1
       puts "Попытайтесь еще раз."
-      retry if attempt < 2
+      retry if attempt < 3
     end
-    stations.push(Station.new(name))
+    if attempt == 3
+      puts "Станция не создана"
+    end
   end
 
   def new_train
-    attempt = 0
+     attempt = 0
     begin
       puts "Введите номер поезда" 
-      attempt = 0
       name = gets.chomp.to_s
       puts "Укажите необходимый тип поезда ('грузовой' или 'пассажирский')"
       type = gets.chomp.strip
       puts "Укажите количество вагонов"
       count = gets.chomp.to_i
+      puts count
       if type == "грузовой"
         train = CargoTrain.new(name)  
         for i in (1.. count)
           wagon = CargoWagon.new(i)
           train.push_wagon(wagon)
         end
-        puts "Поезд №#{name} создан."
+        puts "Поезд № #{name}, тип - грузовой, вагонов #{count} создан."
         trains.push(train)
       elsif type == "пассажирский"
         train = PassengerTrain.new(name) 
@@ -121,16 +119,19 @@ class Controller
           wagon = PassengerWagon.new(i)
           train.push_wagon(wagon)
         end
-        puts "Поезд №#{name} создан."
+        puts "Поезд № #{name}, тип - пассажирский, вагонов #{count} создан."
         trains.push(train)
       else
           puts "Неверный тип вагона"
-          raise 
+          raise RuntimeError
       end
     rescue RuntimeError
       attempt +=1 
       puts "Попытайтесь еще раз."
-      retry if attempt < 2
+      retry if attempt < 3
+    end
+    if attempt == 3
+      puts "Поезд не создан"
     end
   end
 
@@ -195,8 +196,8 @@ class Controller
   end
 
   def new_route
+    attempt = 0
     begin
-      attempt = 0
       if stations.length >= 2
         print_stations
         puts "Введите 0, если надо ввести новую станцию или 1 чтобы создать маршрут из имеющихся станций"
@@ -222,7 +223,10 @@ class Controller
     rescue RuntimeError
       attempt +=1 
       puts "Попытайтесь еще раз."
-      retry if attempt < 2
+      retry if attempt < 3
+    end
+    if attempt == 3
+      puts "Маршрут не создан"
     end
   end
    
@@ -411,7 +415,7 @@ class Controller
           add_wagon
         rescue RuntimeError
           attempt +=1 
-          puts "Позда с таким номером нет! Попытайтесь еще раз."
+          puts "Позда с таким номером нет!"
           retry if attempt < 2
         end
       when "6"
@@ -420,7 +424,7 @@ class Controller
           del_wagon
         rescue RuntimeError
           attempt +=1 
-          puts "Позда с таким номером нет! Попытайтесь еще раз."
+          puts "Позда с таким номером нет!"
           retry if attempt < 2
         end
       when "7"
