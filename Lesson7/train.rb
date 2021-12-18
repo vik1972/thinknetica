@@ -14,15 +14,6 @@ class Train
   @@all_trains = []
   @@instances = 0
 
-  
-  def self.instances
-   @@instances
-  end
-
-  def self.find(number)
-    @@all_trains.find{|train| train.number == number}
-  end
-
   def initialize(number)
     @number = number.to_s
     validate!
@@ -33,6 +24,19 @@ class Train
     register_instance
     @@all_trains << self
   end
+  
+  def self.instances
+   @@instances
+  end
+
+  def self.find(number)
+    @@all_trains.find{|train| train.number == number}
+  end
+
+  def each_train_wagon(&block)
+    wagons.each {|wagon| yield(wagon)}
+  end
+
 
   def push_wagon(wagon)
     self.wagons << wagon if self.type == wagon.type && self.train_stoped? 

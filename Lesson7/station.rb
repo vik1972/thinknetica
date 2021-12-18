@@ -2,7 +2,7 @@
 require_relative "instances_counter"
 
 class Station
-
+  NAME_FORMAT =/[\A]&[\d]|[a-z]|[а-я]/i
 
   include InstanceCounter
 
@@ -23,6 +23,10 @@ class Station
     @@all_stations << self
   end
 
+  def each_train(&block)
+    trains.each {|train| yield(train)}
+  end
+
   def take_train(train)
     trains << train
   end
@@ -32,7 +36,7 @@ class Station
   end
 
   def show_trains
-    trains.each {|train| puts "Поезд № #{train.number}, #{train.type} количество вагонов: #{train.wagons.size}"}
+    @trains.each {|train| puts "Поезд № #{train.number}, #{train.type} количество вагонов: #{train.wagons.size}"}
   end
 
   #Возвращает массиввсех поездов на станции в текущий момент времени, по типу
@@ -43,12 +47,12 @@ class Station
   private
 
   def validate!
-    if @name.size == 0 
-      puts "Название станция не может быть пустой строкой."
+    if @name.size == 0 || @name !~NAME_FORMAT
+      puts "Название станция не может быть пустой строкой или числом."
       raise RuntimeError
     end
     @@all_stations.each do |station|
-      if station.name == @name
+      if station.name.downcase == @name.downcase
         puts "Станция с таким названием уже есть"
         raise RuntimeError
       end
