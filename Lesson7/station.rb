@@ -2,14 +2,14 @@
 require_relative "instances_counter"
 
 class Station
-  NAME_FORMAT =/[\A]&[\d]|[a-z]|[а-я]/i
 
   include InstanceCounter
+  NAME_FORMAT =/[\A]&[\d]|[a-z]|[а-я]/i
 
   attr_accessor :trains
   attr_reader :name
-  @@all_stations =[]
 
+  @@all_stations =[]
   
   def self.all
     @@all_stations
@@ -24,7 +24,9 @@ class Station
   end
 
   def each_train(&block)
-    trains.each {|train| yield(train)}
+    if block_given?
+      trains.each {|train| yield(train)}
+    end
   end
 
   def take_train(train)

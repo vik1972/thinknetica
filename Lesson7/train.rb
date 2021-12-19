@@ -12,7 +12,6 @@ class Train
   attr_reader :speed, :number
   attr_accessor :route, :current_location, :type,  :wagons
   @@all_trains = []
-  @@instances = 0
 
   def initialize(number)
     @number = number.to_s
@@ -20,13 +19,8 @@ class Train
     @wagons = []
     @speed = 0
     @current_location = 0
-    @@instances += 1
     register_instance
     @@all_trains << self
-  end
-  
-  def self.instances
-   @@instances
   end
 
   def self.find(number)
@@ -36,7 +30,6 @@ class Train
   def each_train_wagon(&block)
     wagons.each {|wagon| yield(wagon)}
   end
-
 
   def push_wagon(wagon)
     self.wagons << wagon if self.type == wagon.type && self.train_stoped? 

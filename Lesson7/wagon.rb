@@ -7,12 +7,12 @@ class Wagon
 
   def initialize(space, number=1)
     @number = number
-    @count_space = space
+    @space = space
     @taken_space = 0
   end
 
   def free_space
-    count_space - taken_space
+    @space - taken_space
   end
 
 end 

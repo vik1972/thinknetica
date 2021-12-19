@@ -84,6 +84,7 @@ class Controller
       puts "Введите название станции"
       name = gets.chomp.strip
       stations << Station.new(name.capitalize)
+      puts "Станция #{name.capitalize} создана"
     rescue RuntimeError
       attempt +=1 
       puts "Попытайтесь еще раз."
@@ -105,7 +106,7 @@ class Controller
       count = gets.chomp.to_i
       puts count
       if type == "грузовой"
-        puts "Укажите общий объм вагона"
+        puts "Укажите общий объём вагона"
         space = gets.chomp.to_i
         train = CargoTrain.new(name)  
         for i in (1.. count)
