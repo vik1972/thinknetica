@@ -1,0 +1,37 @@
+AllCops:
+  RubyInterpreters:
+    - ruby
+
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/GuardClause:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Metrics/MethodLength:
+  Max: 20
+
+Metrics/LineLength:
+  Max: 120
+
+Metrics/PerceivedComplexity:
+  Max: 12
+
+Style/ClassVars:
+  Enabled: false
+
+Metrics/AbcSize: 
+  Max: 45
+
+Metrics/CyclomaticComplexity: 
+  Enabled: false
+
+Metrics/BlockLength:
+  Max: 40
+
+Metrics/BlockNesting:
+  Max: 4

@@ -74,37 +74,50 @@ class Controller
     puts 'Станция не создана' if attempt == 3
   end
 
+  def informations_of_train
+    puts 'Введите номер поезда'
+    name = gets.chomp.to_s
+    puts "Укажите необходимый тип поезда ('грузовой' или 'пассажирский')"
+    type = gets.chomp.strip
+    puts 'Укажите количество вагонов'
+    count = gets.chomp.to_i
+    [name, type, count]
+  end
+
+  def build_train(name, count, type)
+    case type
+    when 'грузовой'
+      puts 'Укажите общий объём вагона'
+      space = gets.chomp.to_i
+      train = CargoTrain.new(name)
+      (1..count).each do |i|
+        wagon = CargoWagon.new(space, i)
+        train.push_wagon(wagon)
+      end
+    when 'пассажирский'
+      puts 'Укажите количество мест в вагоне'
+      space = gets.chomp.to_i
+      train = PassengerTrain.new(name)
+      (1..count).each do |i|
+        wagon = PassengerWagon.new(space, i)
+        train.push_wagon(wagon)
+      end
+    end
+    trains.push(train)
+    # train
+  end
+
   def new_train
     attempt = 0
     begin
-      puts 'Введите номер поезда'
-      name = gets.chomp.to_s
-      puts "Укажите необходимый тип поезда ('грузовой' или 'пассажирский')"
-      type = gets.chomp.strip
-      puts 'Укажите количество вагонов'
-      count = gets.chomp.to_i
-      puts count
+      name, type, count = informations_of_train
       case type
       when 'грузовой'
-        puts 'Укажите общий объём вагона'
-        space = gets.chomp.to_i
-        train = CargoTrain.new(name)
-        (1..count).each do |i|
-          wagon = CargoWagon.new(space, i)
-          train.push_wagon(wagon)
-        end
+        build_train(name, count, type)
         puts "Поезд номер #{name}, тип - грузовой, вагонов #{count} создан."
-        trains.push(train)
       when 'пассажирский'
-        puts 'Укажите количество мест в вагоне'
-        space = gets.chomp.to_i
-        train = PassengerTrain.new(name)
-        (1..count).each do |i|
-          wagon = PassengerWagon.new(space, i)
-          train.push_wagon(wagon)
-        end
+        build_train(name, count, type)
         puts "Поезд номер #{name}, тип - пассажирский, вагонов #{count} создан."
-        trains.push(train)
       else
         puts 'Неверный тип вагона'
         raise RuntimeError
@@ -143,7 +156,24 @@ class Controller
     end
   end
 
-  def moving_train
+  def moving_train(train)
+    puts 'Выберете направление (1 - одна станция вперед, 0 - прекратить движение, и -1 - станция назад)'
+    direction = gets.chomp.to_i
+    case direction
+    when 1
+      del_train_to_station(trains[train - 1])
+      trains[train - 1].forward
+      add_train_to_station(trains[train - 1])
+    when -1
+      del_train_to_station(trains[train - 1])
+      trains[train - 1].back
+      add_train_to_station(trains[train - 1])
+    else
+      puts 'Движение прекращено'
+    end
+  end
+
+  def start_moving_train
     loop do
       if trains.empty? || routes.empty?
         puts 'Нет ни одиного поезда и ни одного маршрута'
@@ -151,48 +181,42 @@ class Controller
         puts 'Введите порядковый номер поезда или 0 для выхода'
         print_trains
         train = gets.chomp.to_i
-        if train < 1 || train > trains.size
+        break if train.zero?
+
+        if train > trains.size
           puts 'Поезда с таким номером нет'
           break
         else
-          puts 'Выберете направление (1 - одна станция вперед, 0 - прекратить движение, и -1 - станция назад)'
-          direction = gets.chomp.to_i
-          case direction
-          when 1
-            del_train_to_station(trains[train - 1])
-            trains[train - 1].forward
-            add_train_to_station(trains[train - 1])
-          when -1
-            del_train_to_station(trains[train - 1])
-            trains[train - 1].back
-            add_train_to_station(trains[train - 1])
-          else
-            break
-          end
+          moving_train(train)
         end
       end
     end
+  end
+
+  def informations_of_route
+    print_stations
+    puts 'Введите 0, если надо ввести новую станцию или 1 чтобы создать маршрут из имеющихся станций'
+    comand = gets.chomp.to_i
+    new_station if comand.zero?
+    print_stations
+    puts 'Введите порядковый номер первой станции маршрута'
+    first = gets.chomp.to_i
+    puts 'Введите порядковый номер последней станции маршрута'
+    last = gets.chomp.to_i
+    if first.zero? || last > stations.size
+      puts 'Станций с такими номерами нет'
+      raise RuntimeError
+    end
+    [first, last]
   end
 
   def new_route
     attempt = 0
     begin
       if stations.size >= 2
-        print_stations
-        puts 'Введите 0, если надо ввести новую станцию или 1 чтобы создать маршрут из имеющихся станций'
-        comand = gets.chomp.to_i
-        new_station if comand.zero?
-        print_stations
-        puts 'Введите порядковый номер первой станции маршрута'
-        first = gets.chomp.to_i
-        puts 'Введите порядковый номер последней станции маршрута'
-        last = gets.chomp.to_i
-        if first.positive? && last <= stations.size
-          routes << Route.new(stations[first - 1].name, stations[last - 1].name)
-          puts "Ноый маршрут: #{stations[first - 1].name} - #{stations[last - 1].name}"
-        else
-          puts "Неверный порядковый номер станции first=#{first} last=#{last} count=#{stations.size}"
-        end
+        first, last = informations_of_route
+        routes << Route.new(stations[first - 1].name, stations[last - 1].name)
+        puts "Ноый маршрут: #{stations[first - 1].name} - #{stations[last - 1].name}"
       else
         puts 'Недостаточно станций для составления маршрута.'
         puts 'Вернитесь в меню и создайте минимум 2 станции'
@@ -206,7 +230,7 @@ class Controller
     puts 'Маршрут не создан' if attempt == 3
   end
 
-  def edit_route
+  def check_route
     if routes.empty?
       puts 'Нет маршрутов для редактирования. Создайте хотя бы один маршрут'
     else
@@ -216,29 +240,44 @@ class Controller
       if route < 1 || route > routes.size
         puts 'Маршрут с таким номером отсутствует'
       else
-        puts 'Если вы хотите удалить станцию из маршрута введите 1, если добавить - 2'
-        action = gets.chomp.to_i
-        case action
-        when 1
-          puts 'Введите номер станции'
-          routes[route - 1].show_route
-          pos = gets.chomp.to_i
-          if pos >= routes[route - 1].stations.size || pos == 1
-            puts 'Нельзя удалить первую или последнюю станцию маршрута'
-          else
-            name = routes[route - 1].stations[pos - 1]
-            routes[route - 1].delete_station(name) if routes[route - 1].stations.include?(name)
-          end
-        when 2
-          puts 'Введите номер станции'
-          print_stations
-          pos = gets.chomp.to_i
-          if pos.positive? && pos <= stations.size
-            routes[route - 1].add_station(stations[pos - 1].name)
-          else
-            puts 'Станции с таким номером нет'
-          end
-        end
+        route
+      end
+    end
+  end
+
+  def delete_station_of_route
+    puts 'Введите номер станции'
+    routes[route - 1].show_route
+    pos = gets.chomp.to_i
+    if pos >= routes[route - 1].stations.size || pos == 1
+      puts 'Нельзя удалить первую или последнюю станцию маршрута'
+    else
+      name = routes[route - 1].stations[pos - 1]
+      routes[route - 1].delete_station(name) if routes[route - 1].stations.include?(name)
+    end
+  end
+
+  def push_station_of_route
+    puts 'Введите номер станции'
+    print_stations
+    pos = gets.chomp.to_i
+    if pos.positive? && pos <= stations.size
+      routes[route - 1].add_station(stations[pos - 1].name)
+    else
+      puts 'Станции с таким номером нет'
+    end
+  end
+
+  def edit_route
+    route = check_route
+    unless route.nil?
+      puts 'Если вы хотите удалить станцию из маршрута введите 1, если добавить - 2'
+      action = gets.chomp.to_i
+      case action
+      when 1
+        delete_station_of_route
+      when 2
+        push_station_of_routes
       end
     end
   end
@@ -425,23 +464,27 @@ class Controller
     end
   end
 
+  def print_menu
+    puts
+    puts ' - Для создания станции введите 1'
+    puts ' - Для создания поезда введите 2'
+    puts ' - Для работы с маршрутом(создание/редактирование) введите 3'
+    puts ' - Для назначения маршрута поезду введите 4'
+    puts ' - Для добавления вагона к поезду введите 5'
+    puts ' - Для отцепления вагона от поезда введите 6'
+    puts ' - Для начала перемещения по маршруту нажмите 7'
+    puts ' - Для начала просмотра списка поездов на станции нажмите 8'
+    puts ' - Для начала просмотра списка маршрутов нажмите 9'
+    puts ' - Для просмотра станций маршрута нажмите 10'
+    puts ' - Для просмотра информации о вагонах поезда нажмите 11'
+    puts ' - Для для бронирования места в вагоне нажмите 12'
+    puts ' - Для просмотра всех станций нажмите 13'
+    puts ' - Выход 0'
+  end
+
   def start
     loop do
-      puts
-      puts ' - Для создания станции введите 1'
-      puts ' - Для создания поезда введите 2'
-      puts ' - Для работы с маршрутом(создание/редактирование) введите 3'
-      puts ' - Для назначения маршрута поезду введите 4'
-      puts ' - Для добавления вагона к поезду введите 5'
-      puts ' - Для отцепления вагона от поезда введите 6'
-      puts ' - Для начала перемещения по маршруту нажмите 7'
-      puts ' - Для начала просмотра списка поездов на станции нажмите 8'
-      puts ' - Для начала просмотра списка маршрутов нажмите 9'
-      puts ' - Для просмотра станций маршрута нажмите 10'
-      puts ' - Для просмотра информации о вагонах поезда нажмите 11'
-      puts ' - Для для бронирования места в вагоне нажмите 12'
-      puts ' - Для просмотра всех станций нажмите 13'
-      puts ' - Выход 0'
+      print_menu
       command = gets.chomp
       case command
       when '1'
@@ -475,7 +518,8 @@ class Controller
           retry if attempt < 2
         end
       when '7'
-        moving_train
+        start_moving_train
+        # moving_train
       when '8'
         list_trains
       when '9'
