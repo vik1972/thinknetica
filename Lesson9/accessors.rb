@@ -1,7 +1,5 @@
 module Acсessors
-
   module ClassMethods
-    
     def attr_accessor_with_history(*names)
       names.each do |name|
         var_name = "@#{name}".to_sym
@@ -34,17 +32,14 @@ module Acсessors
         end
       end 
     end
-
   end
   
   module InstanceMethods
-    
   end
   
   def self.included(receiver)
     receiver.extend         ClassMethods
     receiver.send :include, InstanceMethods
   end
-
 end
 

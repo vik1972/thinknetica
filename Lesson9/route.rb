@@ -35,14 +35,4 @@ class Route
   def show_route
     stations.each_with_index { |x, i| puts "#{i + 1}. #{x}" }
   end
-
-  private
-
-  # def valid!
-  #   if @stations.first == @stations.last
-  #     puts 'Начальная и конечная станция должны быть различные'
-  #     raise RuntimeError
-  #   end
-  #   true
-  # end
 end

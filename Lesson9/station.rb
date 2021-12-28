@@ -50,19 +50,4 @@ class Station
   def trains_by(type)
     trains.select { |train| train.type == type }
   end
-
-  private
-
-  # def validate!
-  #   if @name.size.zero? || @name !~ NAME_FORMAT
-  #     puts 'Название станция не может быть пустой строкой или числом.'
-  #     raise RuntimeError
-  #   end
-  #   @@all_stations.each do |station|
-  #     if station.name.downcase == @name.downcase
-  #       puts 'Станция с таким названием уже есть'
-  #       raise RuntimeError
-  #     end
-  #   end
-  # end
 end

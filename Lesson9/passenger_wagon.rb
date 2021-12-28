@@ -11,7 +11,7 @@ class PassengerWagon < Wagon
 
   def take_seat
     raise 'Недостаточно места' if free_space < 1
-
+    
     @taken_space += 1
   end
 end

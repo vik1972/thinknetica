@@ -104,7 +104,6 @@ class Controller
       end
     end
     trains.push(train)
-    # train
   end
 
   def new_train

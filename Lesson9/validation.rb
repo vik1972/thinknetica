@@ -1,5 +1,4 @@
 module Validation
-
   def self.included(base)
     base.extend ClassMethods
     base.include InstanceMethods
@@ -13,7 +12,6 @@ module Validation
   end
 
   module InstanceMethods
-
     def validate!
       arr = self.class.instance_variable_get(:@validations)
       arr.each do |validation|
